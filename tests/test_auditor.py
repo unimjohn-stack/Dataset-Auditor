@@ -1,4 +1,4 @@
-from src.auditor import fingerprint, validate
+from src.auditor import fingerprint, validate, audit
 
 def test_fingerprint_is_deterministic():
     assert fingerprint("Hello World") == fingerprint("Hello World")
@@ -91,3 +91,18 @@ def test_audit_returns_empty_leakage_lists_when_clean():
     result = audit(train, test)
     assert result["content_leakage"] == []
     assert result["group_leakage"] == []
+
+def test_audit_includes_leakage_counts():
+    train = [
+        {"id": "1", "group": "customer-a", "text": "Hello"},
+    ]
+
+    test = [
+        {"id": "2", "group": "customer-a", "text": "Hello"},
+        {"id": "3", "group": "customer-b", "text": "Goodbye"},
+    ]
+
+    result = audit(train, test)
+
+    assert result["content_leakage_count"] == 1
+    assert result["group_leakage_count"] == 1

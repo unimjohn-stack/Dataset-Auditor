@@ -20,3 +20,31 @@ def validate(records: list[dict]) -> list[dict]:
             raise ValueError(f"Duplicate record_id: {record_id}")
         seen_ids.add(record_id)
     return records
+
+def audit(train: list[dict], test: list[dict]) -> dict:
+    validate(train)
+    validate(test)
+    train_fingerprints = {
+        fingerprint(record["text"])
+        for record in train
+    }
+    train_groups = {
+        record["group"]
+        for record in train
+    }
+    content_leakage = [
+        record["id"]
+        for record in test
+        if fingerprint(record["text"]) in train_fingerprints
+    ]
+    group_leakage = [
+        record["id"]
+        for record in test
+        if record["group"] in train_groups
+    ]
+    return {
+        "content_leakage": content_leakage,
+        "group_leakage": group_leakage,
+        "content_leakage_count": len(content_leakage),
+        "group_leakage_count": len(group_leakage)
+    }
