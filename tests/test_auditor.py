@@ -48,3 +48,46 @@ def test_validate_rejects_missing_fields():
         assert False
     except ValueError:
         assert True
+
+def test_audit_detects_content_leakage():
+    train = [
+        {"id": "1", "group": "a", "text": "Hello World"},
+    ]
+    test = [
+        {"id": "2", "group": "b", "text": "   hello  world"}
+    ]
+
+    result = audit(train, test)
+    assert result["content_leakage"] == ["2"]
+
+def test_audit_detects_group_leakage():
+    train = [
+        {"id": "1", "group":"customer-a", "text": "Hello"}
+    ]
+    test = [
+        {"id": "2", "group": "customer-a", "text": "Goodbye"}
+    ]
+    result = audit(train, test)
+    assert result["group_leakage"] == ["2"]
+
+def test_audit_detects_both_leakage():
+    train = [
+        {"id": "1", "group": "customer-a", "text": "Hello"},
+    ]
+    test = [
+        {"id": "2", "group": "customer-a", "text": "Hello"},
+    ]
+    result = audit(train, test)
+    assert result["content_leakage"] == ["2"]
+    assert result["group_leakage"] == ["2"]
+
+def test_audit_returns_empty_leakage_lists_when_clean():
+    train = [
+        {"id": "1", "group": "customer-a", "text": "hello"},
+    ]
+    test = [
+        {"id": "2", "group": "customer-b", "text": "Goodbye"},
+    ]
+    result = audit(train, test)
+    assert result["content_leakage"] == []
+    assert result["group_leakage"] == []
