@@ -122,3 +122,49 @@ def test_split_groups_keeps_group_together():
     train_groups = {record["group"] for record in train}
     test_groups = {record["group"] for record in test}
     assert train_groups.isdisjoint(test_groups)
+
+def test_split_records_is_deterministic():
+    records = [
+        {"id": "1", "group": "a", "text": "A1"},
+        {"id": "2", "group": "a", "text": "A2"},
+        {"id": "3", "group": "b", "text": "B1"},
+        {"id": "4", "group": "b", "text": "B2"},
+        {"id": "5", "group": "c", "text": "C1"},
+        {"id": "6", "group": "c", "text": "C2"},
+    ]
+    train1, test1 = split_groups(records, test_fraction=0.33, seed="course")
+    train2, test2 = split_groups(records, test_fraction=0.33, seed="course")
+    assert train1 == train2
+    assert test1 == test2
+
+def test_split_groups_preserves_all_records():
+    records = [
+        {"id": "1", "group": "a", "text": "A1"},
+        {"id": "2", "group": "a", "text": "A2"},
+        {"id": "3", "group": "b", "text": "B1"},
+        {"id": "4", "group": "b", "text": "B2"},
+        {"id": "5", "group": "c", "text": "C1"},
+        {"id": "6", "group": "c", "text": "C2"},
+    ]
+    train, test = split_groups(records, test_fraction=0.5, seed = "course")
+    combined_ids = {record["id"]
+    for record in train + test}
+    original_ids = {record["id"] for record in records}
+
+    assert combined_ids == original_ids
+
+def test_split_groups_rejects_invalid_fractions():
+    records = [
+        {"id": "1", "group": "a", "text": "A1"},
+    ]
+    try:
+        split_groups(records, test_fraction=0)
+        assert False
+    except ValueError:
+        assert True
+
+    try:
+        split_groups(records, test_fraction=1)
+        assert False
+    except ValueError:
+        assert True
