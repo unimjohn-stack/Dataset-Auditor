@@ -1,6 +1,7 @@
 import hashlib
 import re
 import unicodedata
+import random
 
 def fingerprint(text: str) -> str:
     normalized = unicodedata.normalize("NFKC", text)
@@ -48,3 +49,26 @@ def audit(train: list[dict], test: list[dict]) -> dict:
         "content_leakage_count": len(content_leakage),
         "group_leakage_count": len(group_leakage)
     }
+
+def split_groups(records: list[dict], test_fraction: float = 0.2, seed: str = "course",) -> tuple[list[dict], list[dict]]:
+    validate(records)
+    if not 0 < test_fraction < 1:
+        raise ValueError("test_fraction must be between 0 and 1")
+    groups = {}
+    for record in records:
+        groups.setdefault(record["group"], []).append(record)
+    group_names = list(groups)
+    rng = random.Random(seed)
+    rng.shuffle(group_names)
+
+    test_group_count = max(1, round(len(group_names) * test_fraction))
+    test_groups = set(group_names[:test_group_count])
+    train = []
+    test = []
+
+    for group_name, group_records in groups.items():
+        if group_name in test_groups:
+            test.extend(group_records)
+        else:
+            train.extend(group_records)
+    return train, test

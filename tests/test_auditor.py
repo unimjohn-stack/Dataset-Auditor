@@ -1,4 +1,4 @@
-from src.auditor import fingerprint, validate, audit
+from src.auditor import fingerprint, validate, audit, split_groups
 
 def test_fingerprint_is_deterministic():
     assert fingerprint("Hello World") == fingerprint("Hello World")
@@ -109,16 +109,16 @@ def test_audit_includes_leakage_counts():
 
 def test_split_groups_keeps_group_together():
     records = [
-        {"id": "1", "groups": "a", "text": "A1"},
-        {"id": "2", "groups": "a", "text": "A2"},
-        {"id": "3", "groups": "b", "text": "B1"},
-        {"id": "4", "groups": "b", "text": "B2"},
-        {"id": "5", "groups": "c", "text": "C1"},
-        {"id": "6", "groups": "c", "text": "C2"},
+        {"id": "1", "group": "a", "text": "A1"},
+        {"id": "2", "group": "a", "text": "A2"},
+        {"id": "3", "group": "b", "text": "B1"},
+        {"id": "4", "group": "b", "text": "B2"},
+        {"id": "5", "group": "c", "text": "C1"},
+        {"id": "6", "group": "c", "text": "C2"},
     ]
     train, test = split_groups(
         records, test_fraction=0.33, seed = "course",
     )
     train_groups = {record["group"] for record in train}
-    test_groups = {records["group"] for record in test}
+    test_groups = {record["group"] for record in test}
     assert train_groups.isdisjoint(test_groups)

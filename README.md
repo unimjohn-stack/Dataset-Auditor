@@ -14,3 +14,7 @@ Stage Two: Auditing:
             "group": "customer_001",
             "text": "Hello World"
         }
+
+Stage Three:
+    This stage is going to handle the splitting between data sets and each splits must be aware of the groups they are in.
+    This spliting would be done using the random import
