@@ -106,3 +106,19 @@ def test_audit_includes_leakage_counts():
 
     assert result["content_leakage_count"] == 1
     assert result["group_leakage_count"] == 1
+
+def test_split_groups_keeps_group_together():
+    records = [
+        {"id": "1", "groups": "a", "text": "A1"},
+        {"id": "2", "groups": "a", "text": "A2"},
+        {"id": "3", "groups": "b", "text": "B1"},
+        {"id": "4", "groups": "b", "text": "B2"},
+        {"id": "5", "groups": "c", "text": "C1"},
+        {"id": "6", "groups": "c", "text": "C2"},
+    ]
+    train, test = split_groups(
+        records, test_fraction=0.33, seed = "course",
+    )
+    train_groups = {record["group"] for record in train}
+    test_groups = {records["group"] for record in test}
+    assert train_groups.isdisjoint(test_groups)
