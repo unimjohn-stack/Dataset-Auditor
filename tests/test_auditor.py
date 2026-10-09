@@ -182,3 +182,49 @@ def test_split_groups_is_stable_when_record_order_changes():
     train2, test2 = split_groups(records, test_fraction=0.4, seed="experiment-1")
     assert{r["id"] for r in train1} == {r["id"] for r in train2}
     assert{r["id"] for r in test1} == {r["id"] for r in test2}
+
+def test_summarize_reports_size_group_and_usability():
+    train = [
+        {"id": "1", "group": "incident-A", "text": "Rollout completed"},
+        {"id": "2", "group": "incident-A", "text": "Deployment verified"},
+    ]
+    test = [
+        {"id": "3", "group": "incident-B", "text": "Cached warmed"},
+    ]
+    result = summarized(train, test)
+    assert result["train_rows"] == 2
+    assert result["test_rows"] == 1
+    assert result["train_groups"] == 1
+    assert result["test_groups"] == 1
+    assert result["usable"] is True
+
+def test_summarize_marks_empty_test_unsuable():
+    train = [
+        {"id":"1", "group": "incident-A", "text": "Rollout completed"},
+    ]
+    result = summarise(train, [])
+    assert result["train_rows"] == 1
+    assert result["test_rows"] == 0
+    assert result["usable"] is False
+
+def test_summarize_marks_content_leakage_unusable():
+    train = [
+        {"id": "1", "group": "incident-A", "text": "Rollout Completed"},
+    ]
+    test = [
+        {"id": "2", "group": "incident-B", "text": "  ROLLOUT  COMPLETED   "}
+    ]
+    result = summarize(train, test)
+    assert result["content_leakage"] == ["2"]
+    assert result["usable"] is False
+
+def test_summarize_marks_group_leakage_unusable():
+    train = [
+        {"id": "1", "group": "incident-A", "text": "Rollout Completed"},
+    ]
+    test = [
+        {"id": "2", "group": "incident-A", "text": "Cache warmed"},
+    ]
+    result = summarize(train, test)
+    assert result["group_leakage"] == ["2"]
+    assert result["usable"] is False
