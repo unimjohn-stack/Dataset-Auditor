@@ -1,4 +1,4 @@
-from src.auditor import fingerprint, validate, audit, split_groups
+from src.auditor import fingerprint, validate, audit, split_groups, summarize
 
 def test_fingerprint_is_deterministic():
     assert fingerprint("Hello World") == fingerprint("Hello World")
@@ -191,7 +191,7 @@ def test_summarize_reports_size_group_and_usability():
     test = [
         {"id": "3", "group": "incident-B", "text": "Cached warmed"},
     ]
-    result = summarized(train, test)
+    result = summarize(train, test)
     assert result["train_rows"] == 2
     assert result["test_rows"] == 1
     assert result["train_groups"] == 1
@@ -202,7 +202,7 @@ def test_summarize_marks_empty_test_unsuable():
     train = [
         {"id":"1", "group": "incident-A", "text": "Rollout completed"},
     ]
-    result = summarise(train, [])
+    result = summarize(train, [])
     assert result["train_rows"] == 1
     assert result["test_rows"] == 0
     assert result["usable"] is False

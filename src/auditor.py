@@ -73,3 +73,30 @@ def split_groups(records: list[dict], test_fraction: float = 0.2, seed: str = "c
         else:
             train.extend(group_records)
     return train, test
+
+def summarize(train: list[dict], test: list[dict]) -> dict:
+    result = audit(train, test)
+
+    train_groups = {record["group"] for record in train}
+    test_groups = {record["group"] for record in test}
+
+    train_rows = len(train)
+    test_rows = len(test)
+
+    usable = (
+        train_rows > 0
+        and test_rows> 0
+        and result["content_leakage_count"] == 0
+        and result["group_leakage_count"] == 0
+    )
+    return {
+        "train_rows": train_rows,
+        "test_rows": test_rows,
+        "train_groups": len(train_groups),
+        "test_groups": len(test_groups),
+        "content_leakage": result["content_leakage"],
+        "content_leakage_count": result["content_leakage_count"],
+        "group_leakage": result["group_leakage"],
+        "group_leakage_count": result["group_leakage_count"],
+        "usable": usable
+    }
