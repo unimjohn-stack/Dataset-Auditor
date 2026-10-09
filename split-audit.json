@@ -1,0 +1,16 @@
+{
+  "train_rows": 2,
+  "test_rows": 1,
+  "train_groups": 2,
+  "test_groups": 1,
+  "clean": true,
+  "content_leaks": [],
+  "group_leaks": [],
+  "content_leakage_count": 0,
+  "group_leakage_count": 0,
+  "evidence": {
+    "content": [],
+    "groups": []
+  },
+  "usable": true
+}

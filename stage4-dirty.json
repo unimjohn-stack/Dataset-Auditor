@@ -1,0 +1,8 @@
+﻿{
+  "train": [
+    {"id": "train-1", "group": "customer-a", "text": "Customer asks about delivery"}
+  ],
+  "test": [
+    {"id": "test-1", "group": "customer-a", "text": "Customer asks about delivery"}
+  ]
+}

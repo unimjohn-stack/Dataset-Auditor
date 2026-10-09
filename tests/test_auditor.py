@@ -116,9 +116,11 @@ def test_split_groups_keeps_group_together():
         {"id": "5", "group": "c", "text": "C1"},
         {"id": "6", "group": "c", "text": "C2"},
     ]
-    train, test = split_groups(
+    result = split_groups(
         records, test_fraction=0.33, seed = "course",
     )
+    train = result["train"]
+    test = result["test"]
     train_groups = {record["group"] for record in train}
     test_groups = {record["group"] for record in test}
     assert train_groups.isdisjoint(test_groups)
@@ -146,7 +148,9 @@ def test_split_groups_preserves_all_records():
         {"id": "5", "group": "c", "text": "C1"},
         {"id": "6", "group": "c", "text": "C2"},
     ]
-    train, test = split_groups(records, test_fraction=0.5, seed = "course")
+    result = split_groups(records, test_fraction=0.5, seed = "course")
+    train = result["train"]
+    test = result["test"]
     combined_ids = {record["id"]
     for record in train + test}
     original_ids = {record["id"] for record in records}
@@ -178,8 +182,10 @@ def test_split_groups_is_stable_when_record_order_changes():
         {"id": "5", "group": "e", "text": "E1"},
     ]
     reordered = list(reversed(records))
-    train1, test1 = split_groups(records, test_fraction=0.4, seed="experiment-1")
-    train2, test2 = split_groups(records, test_fraction=0.4, seed="experiment-1")
+    result1 = split_groups(records, test_fraction=0.4, seed="experiment-1")
+    result2 = split_groups(reordered, test_fraction=0.4, seed="experiment-1")
+    train1, test1 = result1["train"], result1["test"]
+    train2, test2 = result2["train"], result2["test"]
     assert{r["id"] for r in train1} == {r["id"] for r in train2}
     assert{r["id"] for r in test1} == {r["id"] for r in test2}
 

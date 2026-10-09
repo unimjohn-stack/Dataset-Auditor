@@ -1,0 +1,35 @@
+{
+  "train_rows": 1,
+  "test_rows": 1,
+  "train_groups": 1,
+  "test_groups": 1,
+  "clean": false,
+  "content_leaks": [
+    "test-1"
+  ],
+  "group_leaks": [
+    "test-1"
+  ],
+  "content_leakage_count": 1,
+  "group_leakage_count": 1,
+  "evidence": {
+    "content": [
+      {
+        "test_id": "test-1",
+        "train_ids": [
+          "train-1"
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "test_id": "test-1",
+        "group": "customer-a",
+        "train_ids": [
+          "train-1"
+        ]
+      }
+    ]
+  },
+  "usable": false
+}

@@ -50,29 +50,33 @@ def audit(train: list[dict], test: list[dict]) -> dict:
         "group_leakage_count": len(group_leakage)
     }
 
-def split_groups(records: list[dict], test_fraction: float = 0.2, seed: str = "course",) -> tuple[list[dict], list[dict]]:
+def split_groups(records: list[dict], test_fraction: float = 0.2, seed: str = "course",) -> dict:
     validate(records)
-    if not 0 < test_fraction < 1:
+    if not isinstance(test_fraction, (int, float)) or not 0 < test_fraction < 1:
         raise ValueError("test_fraction must be between 0 and 1")
+    if not isinstance(test_fraction, (int, float)) or not __import__("math").isfinite(test_fraction):
+        raise ValueError("test_fraction must be finite")
     groups = {}
     for record in records:
         groups.setdefault(record["group"], []).append(record)
-    ranked_groups = sorted(groups, key=lambda group_name: hashlib.sha256(f"{seed}:{group_name}".encode("utf-8")).hexdigest())
+    # ranked_groups = sorted(groups, key=lambda group_name: 
     # group_names = list(groups)
     # rng = random.Random(seed)
     # rng.shuffle(group_names)
 
-    test_group_count = max(1, round(len(ranked_groups) * test_fraction))
-    test_groups = set(ranked_groups[:test_group_count])
+    # test_group_count = max(1, round(len(ranked_groups) * test_fraction))
+    # test_groups = set(ranked_groups[:test_group_count])
     train = []
     test = []
 
     for group_name, group_records in groups.items():
-        if group_name in test_groups:
+        digest = hashlib.sha256(f"{seed}:{group_name}".encode("utf-8")).digest()
+        fraction = int.from_bytes(digest, "big") / (2 ** 256)
+        if fraction < test_fraction:
             test.extend(group_records)
         else:
             train.extend(group_records)
-    return train, test
+    return {"train":train, "test":test}
 
 def summarize(train: list[dict], test: list[dict]) -> dict:
     result = audit(train, test)
