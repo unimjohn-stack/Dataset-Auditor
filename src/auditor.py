@@ -1,7 +1,7 @@
 import hashlib
 import re
 import unicodedata
-import random
+# import random
 
 def fingerprint(text: str) -> str:
     normalized = unicodedata.normalize("NFKC", text)
@@ -57,12 +57,13 @@ def split_groups(records: list[dict], test_fraction: float = 0.2, seed: str = "c
     groups = {}
     for record in records:
         groups.setdefault(record["group"], []).append(record)
-    group_names = list(groups)
-    rng = random.Random(seed)
-    rng.shuffle(group_names)
+    ranked_groups = sorted(groups, key=lambda group_name: hashlib.sha256(f"{seed}:{group_name}".encode("utf-8")).hexdigest())
+    # group_names = list(groups)
+    # rng = random.Random(seed)
+    # rng.shuffle(group_names)
 
-    test_group_count = max(1, round(len(group_names) * test_fraction))
-    test_groups = set(group_names[:test_group_count])
+    test_group_count = max(1, round(len(ranked_groups) * test_fraction))
+    test_groups = set(ranked_groups[:test_group_count])
     train = []
     test = []
 
