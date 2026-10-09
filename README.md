@@ -18,3 +18,4 @@ Stage Two: Auditing:
 Stage Three:
     This stage is going to handle the splitting between data sets and each splits must be aware of the groups they are in.
     This spliting would be done using the random import
+    Stable hasing is also going to be included to splitter so that on addition of new information, consistency would me maintained as splitting occurs

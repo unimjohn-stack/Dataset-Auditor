@@ -168,3 +168,17 @@ def test_split_groups_rejects_invalid_fractions():
         assert False
     except ValueError:
         assert True
+
+def test_split_groups_is_stable_when_record_order_changes():
+    records = [
+        {"id": "1", "group": "a", "text": "A1"},
+        {"id": "2", "group": "b", "text": "B1"},
+        {"id": "3", "group": "c", "text": "C1"},
+        {"id": "4", "group": "d", "text": "D1"},
+        {"id": "5", "group": "e", "text": "E1"},
+    ]
+    reordered = list(reversed(records))
+    train1, test1 = split_groups(records, test_fraction=0.4, seed="experiment-1")
+    train2, test2 = split_groups(records, test_fraction=0.4, seed="experiment-1")
+    assert{r["id"] for r in train1} == {r["id"] for r in train2}
+    assert{r["id"] for r in test1} == {r["id"] for r in test2}
